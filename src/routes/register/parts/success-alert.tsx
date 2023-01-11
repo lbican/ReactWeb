@@ -1,5 +1,4 @@
 import { Alert, AlertDescription, AlertIcon, AlertTitle, Button, Flex, Image, Stack } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
 import { ArrowBackIcon } from '@chakra-ui/icons';
 import RegisterImage from '../../../assets/account.svg';
 import React, { ReactElement } from 'react';
@@ -25,12 +24,9 @@ export default function SuccessAlert (): ReactElement {
                     </AlertTitle>
                     <AlertDescription maxWidth='sm'>
                         Thank you for registering! You can now login.
-
-                        <Link to={'/login'}>
-                            <Button marginTop={'1rem'} leftIcon={<ArrowBackIcon/>} colorScheme='teal' variant='solid'>
-                                Login
-                            </Button>
-                        </Link>
+                        <Button as={'a'} href={'/login'} marginTop={'1rem'} leftIcon={<ArrowBackIcon/>} colorScheme='teal' variant='solid'>
+                            Login
+                        </Button>
                     </AlertDescription>
                 </Alert>
             </Flex>
