@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import {
   Avatar,
   Box, Button,
@@ -12,9 +12,10 @@ import {
   VStack
 } from '@chakra-ui/react';
 import { FiChevronDown } from 'react-icons/fi';
-import Male from '../../../assets/male.svg';
+import { UserContextType } from '../../../context/UserContext';
+import { Link } from 'react-router-dom';
 
-const UserMenu = (): ReactElement => {
+const UserMenu = (props: { context: UserContextType }): ReactElement => {
   if (isAuthenticated()) {
     return (
           <Menu>
@@ -23,16 +24,20 @@ const UserMenu = (): ReactElement => {
                   transition="all 0.3s"
                   _focus={{ boxShadow: 'none' }}>
                   <HStack>
-                      <UserInfo/>
+                      <UserInfo context={props.context}/>
                   </HStack>
               </MenuButton>
               <MenuList
                   bg={useColorModeValue('white', 'gray.900')}
                   borderColor={useColorModeValue('gray.200', 'gray.700')}>
                   <MenuItem>Profile</MenuItem>
-                  <MenuItem>Settings</MenuItem>
+                  <MenuItem as={'div'}>
+                      <Link to={'/settings'}>
+                          Settings
+                      </Link>
+                  </MenuItem>
                   <MenuDivider />
-                  <MenuItem onClick={signOut}>Sign out</MenuItem>
+                  <MenuItem onClick={props.context.logout}>Sign out</MenuItem>
               </MenuList>
           </Menu>
     );
@@ -41,26 +46,24 @@ const UserMenu = (): ReactElement => {
   return <AuthButtons/>;
 };
 
-const signOut = (): void => {
-  localStorage.removeItem('user');
-  sessionStorage.removeItem('user');
-};
+const UserInfo = (props: { context: UserContextType }): ReactElement => {
+  const user = props.context.user;
 
-const UserInfo = (): ReactElement => {
   return (
         <>
             <Avatar
+                name={user?.name}
                 size={'sm'}
-                src={Male}
+                src={user?.avatar}
             />
             <VStack
                 display={{ base: 'none', md: 'flex' }}
                 alignItems="flex-start"
                 spacing="1px"
                 ml="2">
-                <Text fontSize="sm">Justina Clark</Text>
+                <Text fontSize="sm">{user?.name}</Text>
                 <Text fontSize="xs" color="gray.600">
-                    Admin
+                    {user?.admin ? 'Admin' : 'User'}
                 </Text>
             </VStack>
             <Box display={{ base: 'none', md: 'flex' }}>
@@ -77,6 +80,7 @@ const AuthButtons = (): ReactElement => {
                 as={'a'}
                 fontSize={'sm'}
                 fontWeight={400}
+                mx={5}
                 variant={'link'}
                 href={'/login'}>
                 Sign In

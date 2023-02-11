@@ -5,7 +5,7 @@ import {
   Flex,
   Icon,
   useColorModeValue,
-  Link,
+  Link as UiLink,
   Drawer,
   DrawerContent,
   Text,
@@ -21,7 +21,8 @@ import {
   FiSettings
 } from 'react-icons/fi';
 import { IconType } from 'react-icons';
-import MobileNav from './parts/mobile-nav';
+import Navigation from './parts/navigation';
+import { Link as RouterLink } from 'react-router-dom';
 
 interface LinkItemProps {
   name: string
@@ -56,7 +57,8 @@ export default function Sidebar ({ children }: { children: ReactNode }): ReactEl
                 </DrawerContent>
             </Drawer>
 
-            <MobileNav onOpen={onOpen} />
+            <Navigation onOpen={onOpen} />
+
             <Box ml={{ base: 0, md: 60 }} p="4">
                 {children}
             </Box>
@@ -81,12 +83,13 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps): ReactElement => {
             {...rest}>
             <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
                 <Text fontSize="2xl" fontFamily="monospace" fontWeight="bold">
-                    Logo
+                    ReactNetwork
                 </Text>
                 <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
             </Flex>
-            {LinkItems.map((link) => (
-                <NavItem key={link.name} icon={link.icon}>
+
+            {LinkItems.map((link, index) => (
+                <NavItem key={index} icon={link.icon} as={'a'}>
                     {link.name}
                 </NavItem>
             ))}
@@ -100,7 +103,7 @@ interface NavItemProps extends FlexProps {
 }
 const NavItem = ({ icon, children }: NavItemProps): ReactElement => {
   return (
-        <Link href="#" style={{ textDecoration: 'none' }} _focus={{ boxShadow: 'none' }}>
+        <UiLink href="#" style={{ textDecoration: 'none' }} _focus={{ boxShadow: 'none' }}>
             <Flex
                 align="center"
                 p="4"
@@ -122,6 +125,6 @@ const NavItem = ({ icon, children }: NavItemProps): ReactElement => {
                 />
                 {children}
             </Flex>
-        </Link>
+        </UiLink>
   );
 };

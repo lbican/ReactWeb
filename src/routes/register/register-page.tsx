@@ -13,18 +13,22 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  Link,
   Stack
 } from '@chakra-ui/react';
 import RegisterImage from '../../assets/account.svg';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import { useForm } from 'react-hook-form';
-import { pb, User } from '../../utils/database.utils';
+import { pb, UserDatabase } from '../../utils/database.utils';
 import SuccessAlert from './parts/success-alert';
+import { getErrorReport, ResponseError } from './error-builder';
+
 const RegisterPage = (): ReactElement => {
   const { register, watch, handleSubmit, formState: { errors } } = useForm({ mode: 'onChange' });
-  const [error, setError] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<ResponseError[]>([]);
+
   const onSubmit = async (formData: any): Promise<any> => {
     setIsLoading(true);
     const data = {
@@ -33,15 +37,14 @@ const RegisterPage = (): ReactElement => {
       emailVisibility: true,
       password: formData.password,
       passwordConfirm: formData.confirmPassword,
-      // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-      name: formData.firstName + ' ' + formData.lastName
-    } satisfies User;
+      name: formData.firstName.concat(' ').concat(formData.lastName)
+    } satisfies UserDatabase;
+    console.log(data);
 
     return await pb.collection('users').create(data).then(() => {
       setSuccess(true);
     }).catch((error) => {
-      setError(true);
-      console.error(error);
+      setError(getErrorReport(error.data.data));
     }).finally(() => {
       setIsLoading(false);
     });
@@ -140,9 +143,14 @@ const RegisterPage = (): ReactElement => {
                 variant={'solid'}>
               Sign up
             </Button>
+            <Link href={'/login'}>
+              Already have an account? Login
+            </Link>
 
-            {error && <Alert status='error'>
-              <AlertIcon />There was an error while registering your account.</Alert>
+            {error.length > 0 && <Alert status='error'>
+              <AlertIcon />
+              <ErrorDisplay errors={error}/>
+            </Alert>
             }
           </Stack>
         </Flex>
@@ -154,6 +162,18 @@ const RegisterPage = (): ReactElement => {
           />
         </Flex>
       </Stack>
+  );
+};
+
+const ErrorDisplay = (props: { errors: ResponseError[] }): ReactElement => {
+  return (
+      <div>
+        {
+          props.errors.map((error, index) => {
+            return <p key={index}>{error.message}</p>;
+          })
+        }
+      </div>
   );
 };
 

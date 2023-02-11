@@ -8,15 +8,14 @@ import {
   FormLabel,
   Heading,
   Image,
-  Input,
-  Link as UiLink,
+  Input, Link as UiLink,
   Stack
 } from '@chakra-ui/react';
-import React, { ReactElement, useState } from 'react';
-import SpaceImage from '../../assets/space.svg';
+import React, { ReactElement, useContext, useState } from 'react';
 import { pb } from '../../utils/database.utils';
 import { useForm } from 'react-hook-form';
-import { redirect, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { UserContext } from '../../context/UserContext';
 
 interface LoginData {
   identifier: string
@@ -31,6 +30,8 @@ const LoginPage = (): ReactElement => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
+  const user = useContext(UserContext);
+
   const onSubmit = async (data: any): Promise<any> => {
     const formData: LoginData = { ...data };
     setError(false);
@@ -42,8 +43,8 @@ const LoginPage = (): ReactElement => {
       formData.identifier,
       formData.password
     ).then((response) => {
-      console.log(response);
-      loginUser(response.record, formData.remember);
+      user.login(response.record, formData.remember);
+      navigate('/');
       setSuccess(true);
     }).catch((error) => {
       console.error(error);
@@ -51,18 +52,6 @@ const LoginPage = (): ReactElement => {
     }).finally(() => {
       setIsLoading(false);
     });
-  };
-
-  const loginUser = (authorizedUser: any, rememberUser: boolean): void => {
-    if (rememberUser) {
-      localStorage.setItem('user', JSON.stringify(authorizedUser));
-    } else {
-      sessionStorage.setItem('user', JSON.stringify(authorizedUser));
-    }
-
-    setTimeout(() => {
-      navigate('/');
-    }, 50);
   };
 
   return (
@@ -96,6 +85,8 @@ const LoginPage = (): ReactElement => {
                             variant={'solid'}>
                             Sign in
                         </Button>
+                        <UiLink href='/register' color={'teal.500'}>Need an account? Register</UiLink>
+
                         {error && <Alert status='error'>
                             <AlertIcon />
                             Incorrect credentials!
@@ -107,11 +98,11 @@ const LoginPage = (): ReactElement => {
                     </Stack>
                 </Stack>
             </Flex>
-            <Flex flex={1} padding={1}>
+            <Flex flex={1}>
                 <Image
                     alt={'Login Image'}
-                    objectFit={'contain'}
-                    src={SpaceImage}
+                    objectFit={'cover'}
+                    src={'https://source.unsplash.com/1600x900/?nature'}
                 />
             </Flex>
         </Stack>
