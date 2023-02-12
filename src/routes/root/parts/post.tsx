@@ -130,7 +130,7 @@ export const Post: React.FC<PostProps> = ({ user, content, created, updated, sco
             <ButtonGroup ml={2} size='sm' isAttached variant='outline'>
               <Button leftIcon={<ArrowUpIcon />}
                       onClick={upvoted ? removeUpvote : upvotePost}
-                      bgColor={upvoted ? 'teal.500' : 'white'}
+                      bg={upvoted ? 'teal.500' : useColorModeValue('white', 'gray.800')}
                       disabled={disabled}>Upvote</Button>
               <Button leftIcon={<ChatIcon />}>Comment</Button>
               {

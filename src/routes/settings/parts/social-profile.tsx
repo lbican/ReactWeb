@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, {ReactElement, useEffect, useRef, useState} from 'react';
 import {
   Heading,
   Avatar,
@@ -14,7 +14,7 @@ import { getUserAvatar } from '../../../utils/database.utils';
 import { Posts } from '../../root/parts/posts';
 import { User, DataContextType } from '../../../context/DataContext';
 import { FiSettings } from 'react-icons/fi';
-import EditPage from "./edit-user";
+import EditPage from './edit-user';
 // eslint-disable-next-line react/display-name
 export default (props: { currentUser: DataContextType, user: User }): ReactElement => {
   const [isEditing, setIsEditing] = useState(false);

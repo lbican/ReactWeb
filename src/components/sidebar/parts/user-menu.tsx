@@ -36,11 +36,8 @@ const UserMenu = (props: { context: DataContextType }): ReactElement => {
               <MenuList
                   bg={useColorModeValue('white', 'gray.900')}
                   borderColor={useColorModeValue('gray.200', 'gray.700')}>
-                  <MenuItem>Profile</MenuItem>
-                  <MenuItem as={'div'}>
-                      <Link to={'/settings'}>
-                          Settings
-                      </Link>
+                  <MenuItem as={Link} to={'/profile'}>
+                      Profile
                   </MenuItem>
                   <MenuDivider />
                   <MenuItem onClick={logout}>Sign out</MenuItem>

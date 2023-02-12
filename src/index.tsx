@@ -12,6 +12,7 @@ import { UserProvider } from './context/DataContext';
 import { ProfilePage } from './routes/settings/profile-page';
 import { pb } from './utils/database.utils';
 import { TrendingPage } from './routes/trending/trending-page';
+import {UsersPage } from './routes/users/users-page';
 
 const container = document.getElementById('root');
 if (!container) throw new Error('Failed to find the root element');
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
   {
     path: '/trending',
     element: <TrendingPage/>
+  },
+  {
+    path: '/users',
+    element: <UsersPage/>
   },
   {
     path: 'profile/:username',
