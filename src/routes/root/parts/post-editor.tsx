@@ -21,7 +21,6 @@ export const PostEditor = (props: { onCancel: any, post?: PostProps }): ReactEle
         score: 0,
         author: context.user.id
       };
-      console.log(data);
       setLoading(true);
       return await pb.collection('posts').create(data).then(() => {
         if (error) {

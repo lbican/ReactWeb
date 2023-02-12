@@ -39,7 +39,6 @@ const RegisterPage = (): ReactElement => {
       passwordConfirm: formData.confirmPassword,
       name: formData.firstName.concat(' ').concat(formData.lastName)
     } satisfies RegisterUserDatabase;
-    console.log(data);
 
     return await pb.collection('users').create(data).then(() => {
       setSuccess(true);

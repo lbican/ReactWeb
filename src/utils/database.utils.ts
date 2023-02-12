@@ -16,7 +16,7 @@ export interface UserDatabase {
   avatar?: string
 }
 
-export interface RegisterUserDatabase extends UserDatabase{
+export interface RegisterUserDatabase extends UserDatabase {
   password: string
   username: string
   emailVisibility: boolean

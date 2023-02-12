@@ -6,12 +6,11 @@ import {
   Divider,
   Flex, HStack,
   SkeletonCircle,
-  SkeletonText, Stack, Text,
-  useColorModeValue,
-  WrapItem
+  SkeletonText, Text,
+  useColorModeValue, WrapItem
 } from '@chakra-ui/react';
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
-import { User, DataContext } from '../../../context/DataContext';
+import { User, DataContext, PostComment } from '../../../context/DataContext';
 import { ArrowUpIcon, ChatIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { getUserAvatar, isAuthenticated, pb } from '../../../utils/database.utils';
 import { Link } from 'react-router-dom';
@@ -31,8 +30,10 @@ export const Post: React.FC<PostProps> = ({ user, content, created, updated, sco
   const currentUser = useContext(DataContext);
   const [upvoted, setUpvoted] = useState(false);
   const [disabled, setDisabled] = useState(false);
+  const [comments, setComments] = useState<PostComment[]>([]);
   const [getScore, setScore] = useState(score);
-  const [edit, setEdit] = useState(false);
+  const [edit, setEdit] = useState<boolean>(false);
+  const [showComment, setShowComment] = useState<boolean>(false);
 
   useEffect(() => {
     isUpvoted().then(() => {
@@ -44,6 +45,21 @@ export const Post: React.FC<PostProps> = ({ user, content, created, updated, sco
     }
     ).catch((e) => {});
   }, []);
+
+  useEffect(() => {
+    if (showComment) {
+      getComments().then((res) => {
+        setComments(res);
+      }).catch((e) => console.error(e));
+    }
+  }, [showComment]);
+
+  const getComments = async (): Promise<PostComment[]> => {
+    return await pb.collection('comments').getFullList(200, {
+      expand: 'post, author',
+      filter: `post="${id}"`
+    });
+  };
 
   const upvotePost = async (): Promise<void> => {
     await pb.collection('likes').create({
@@ -109,7 +125,7 @@ export const Post: React.FC<PostProps> = ({ user, content, created, updated, sco
               <Avatar size={'lg'} name={user?.name} src={getUserAvatar(user?.id, user?.avatar)} />
             </WrapItem>
             <Flex flexDir={'column'} alignItems={'flex-start'}>
-              <Text fontSize={'lg'} fontWeight={"bold"}>
+              <Text fontSize={'lg'} fontWeight={'bold'}>
               {user?.name}
               </Text>
               <Text fontSize={'sm'}>
@@ -132,7 +148,7 @@ export const Post: React.FC<PostProps> = ({ user, content, created, updated, sco
                       onClick={upvoted ? removeUpvote : upvotePost}
                       bg={upvoted ? 'teal.500' : useColorModeValue('white', 'gray.800')}
                       disabled={disabled}>Upvote</Button>
-              <Button leftIcon={<ChatIcon />}>Comment</Button>
+              <Button leftIcon={<ChatIcon />} onClick={() => setShowComment(!showComment)}>Comment</Button>
               {
                 isVisible() &&
                   <React.Fragment>
@@ -140,10 +156,41 @@ export const Post: React.FC<PostProps> = ({ user, content, created, updated, sco
                     <Button leftIcon={<DeleteIcon />} colorScheme={'red'} onClick={() => { onDelete(id); }}>Delete</Button>
                   </React.Fragment>
               }
-
             </ButtonGroup>
+
           </Flex>
+          {showComment && (
+            comments.length === 0
+              ? (
+                    <React.Fragment>
+                      <Divider my={2}/>
+                      <Text>Comments</Text>
+                      <Text fontSize={'md'}>No comments to display</Text>
+                    </React.Fragment>
+                )
+              : (
+                  <React.Fragment>
+                    <Divider my={2}/>
+                    <Text>Comments</Text>
+                    {comments.map((comment, index) => {
+                      return <CommentElement key={index} comment={comment}/>;
+                    })}
+                  </React.Fragment>
+                )
+          )}
         </Box>
+  );
+};
+
+const CommentElement = (props: { comment: PostComment }): ReactElement => {
+  return (
+      <HStack m={2} p={2}>
+        <WrapItem mr={3}>
+          <Avatar size={'xs'} name={props.comment.expand.author.name}
+                  src={getUserAvatar(props.comment.expand.author.id, props.comment.expand.author.avatar)} />
+        </WrapItem>
+        <Text fontSize={'md'}>{props.comment.comment}</Text>
+      </HStack>
   );
 };
 

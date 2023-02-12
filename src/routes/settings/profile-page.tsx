@@ -10,7 +10,6 @@ export const ProfilePage = (): ReactElement => {
   const currentUser = useContext(DataContext);
   const data = useLoaderData() as User;
   const navigate = useNavigate();
-  console.log(data.id);
 
   useEffect(() => {
     if (!isAuthenticated()) {

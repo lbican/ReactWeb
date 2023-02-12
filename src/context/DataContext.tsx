@@ -1,5 +1,5 @@
 import React, { createContext, ReactElement, useState } from 'react';
-import { pb } from '../utils/database.utils';
+import {PostProps} from "../routes/root/parts/post";
 
 export interface User {
   id: string
@@ -8,6 +8,12 @@ export interface User {
   name: string
   admin: boolean
   avatar: string
+}
+
+export interface PostComment {
+  expand: { author: User, post: PostProps }
+  comment: string
+
 }
 
 export interface DataContextType {
