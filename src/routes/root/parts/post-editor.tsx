@@ -27,11 +27,16 @@ export const PostEditor = (props: { onCancel: any, post?: PostProps }): ReactEle
         if (error) {
           setError(false);
         }
-        location.reload();
+        props.post?.refresh();
+        exitEditor();
       }).catch((e) => {
         setError(true);
       }).finally(() => { setLoading(false); });
     }
+  };
+
+  const exitEditor = (): void => {
+    props.onCancel();
   };
 
   const updatePost = async (): Promise<void> => {
@@ -44,7 +49,7 @@ export const PostEditor = (props: { onCancel: any, post?: PostProps }): ReactEle
         if (error) {
           setError(false);
         }
-        location.reload();
+        props.post?.refresh();
       }).catch((e) => {
         setError(true);
       }).finally(() => { setLoading(false); });
@@ -71,7 +76,7 @@ export const PostEditor = (props: { onCancel: any, post?: PostProps }): ReactEle
                 onEditorChange={(value) => { body = value; }}
                 apiKey={'s05xhkq89e6tcrqb4g43tqkzyvry3ar78uq3ct4q36e7o9c5'}/>
             <HStack justifyContent={'flex-end'} my={2}>
-                <Button colorScheme='red' size="md" onClick={props.onCancel}>
+                <Button colorScheme='red' size="md" onClick={exitEditor}>
                     Cancel
                 </Button>
                 {

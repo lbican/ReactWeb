@@ -4,9 +4,9 @@ import {
   Button,
   ButtonGroup,
   Divider,
-  Flex,
+  Flex, HStack,
   SkeletonCircle,
-  SkeletonText,
+  SkeletonText, Stack, Text,
   useColorModeValue,
   WrapItem
 } from '@chakra-ui/react';
@@ -18,6 +18,7 @@ import { Link } from 'react-router-dom';
 import { PostEditor } from './post-editor';
 
 export interface PostProps {
+  refresh: () => void
   id: string
   user?: User
   content: string
@@ -26,7 +27,7 @@ export interface PostProps {
   updated: Date
 }
 
-export const Post: React.FC<PostProps> = ({ user, content, created, updated, score, id }) => {
+export const Post: React.FC<PostProps> = ({ user, content, created, updated, score, id, refresh }) => {
   const currentUser = useContext(DataContext);
   const [upvoted, setUpvoted] = useState(false);
   const [disabled, setDisabled] = useState(false);
@@ -71,7 +72,7 @@ export const Post: React.FC<PostProps> = ({ user, content, created, updated, sco
 
   const onDelete = (id: string): void => {
     deletePost(id).then(() => {
-      location.reload();
+      refresh();
     });
   };
 
@@ -94,8 +95,12 @@ export const Post: React.FC<PostProps> = ({ user, content, created, updated, sco
   };
 
   if (edit) {
-    return <PostEditor onCancel={() => setEdit(false)} post={{ user, id, score, content, created, updated }}/>;
+    return <PostEditor onCancel={() => setEdit(false)} post={{ user, id, score, content, created, updated, refresh }}/>;
   }
+
+  const isUpdated = (created: Date, updated: Date): boolean => {
+    return created.toLocaleString() !== updated.toLocaleString();
+  };
 
   return (
         <Box shadow={'lg'} bg={useColorModeValue('white', 'gray.800')} p={5} my={2} borderRadius={'8px'}>
@@ -104,15 +109,18 @@ export const Post: React.FC<PostProps> = ({ user, content, created, updated, sco
               <Avatar size={'lg'} name={user?.name} src={getUserAvatar(user?.id, user?.avatar)} />
             </WrapItem>
             <Flex flexDir={'column'} alignItems={'flex-start'}>
-              <strong>
+              <Text fontSize={'lg'} fontWeight={"bold"}>
               {user?.name}
-              </strong>
-              <small>
+              </Text>
+              <Text fontSize={'sm'}>
                 {'@' + user?.username}
-              </small>
-              <small>
-              {created.toLocaleString('DE-de')}
-              </small>
+              </Text>
+              <HStack>
+                <Text fontSize={'sm'}>{created.toLocaleString('DE-de')}</Text>
+                {isUpdated(created, updated) && <Text fontSize={'sm'}>
+                  {'| ' + updated.toLocaleString('DE-de') + ' (updated)' }
+                </Text>}
+              </HStack>
             </Flex>
           </Flex>
           <Divider mb={2}/>

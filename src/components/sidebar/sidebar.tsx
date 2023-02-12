@@ -16,7 +16,7 @@ import {
   FiHome,
   FiTrendingUp,
   FiCompass,
-  FiSettings
+  FiSettings, FiUser
 } from 'react-icons/fi';
 import { IconType } from 'react-icons';
 import Navigation from './parts/navigation';
@@ -27,16 +27,19 @@ interface LinkItemProps {
   name: string
   icon: IconType
   route: string
+  hidden: boolean
 }
 const LinkItems: LinkItemProps[] = [
-  { name: 'Home', icon: FiHome, route: '/' },
-  { name: 'Trending', icon: FiTrendingUp, route: '/trending' },
-  { name: 'Explore', icon: FiCompass, route: '/explore' },
-  { name: 'Profile', icon: FiSettings, route: '/login' }
+  { name: 'Home', icon: FiHome, route: '/', hidden: false },
+  { name: 'Trending', icon: FiTrendingUp, route: '/trending', hidden: false },
+  { name: 'Explore', icon: FiCompass, route: '/explore', hidden: false },
+  { name: 'Profile', icon: FiSettings, route: '/login', hidden: false },
+  { name: 'Users', route: '/users', icon: FiUser, hidden: true }
 ];
 
 export default function Sidebar ({ children }: { children: ReactNode }): ReactElement {
   const { isOpen, onOpen, onClose } = useDisclosure();
+
   return (
         <Box minH="100vh" bg={useColorModeValue('gray.100', 'gray.900')}>
             <SidebarContent
@@ -70,7 +73,9 @@ interface SidebarProps extends BoxProps {
 }
 
 const SidebarContent = ({ onClose, ...rest }: SidebarProps): ReactElement => {
-  const user = useContext(DataContext);
+  const context = useContext(DataContext);
+  const filteredItems = context.user?.admin ? LinkItems : LinkItems.filter(item => !item.hidden);
+
   return (
         <Box
             transition="3s ease"
@@ -88,10 +93,10 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps): ReactElement => {
                 <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
             </Flex>
 
-            {LinkItems.map((link, index) => (
+            {filteredItems.map((link, index) => (
                 <NavItem key={index}
                          icon={link.icon} as={'a'}
-                         route={link.name === 'Profile' && user.user ? `/profile/${user.user.username}` : link.route }
+                         route={link.name === 'Profile' && context.user ? `/profile/${context.user.username}` : link.route }
                 >
                     {link.name}
                 </NavItem>

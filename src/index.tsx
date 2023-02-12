@@ -11,6 +11,7 @@ import RegisterPage from './routes/register/register-page';
 import { UserProvider } from './context/DataContext';
 import { ProfilePage } from './routes/settings/profile-page';
 import { pb } from './utils/database.utils';
+import { TrendingPage } from './routes/trending/trending-page';
 
 const container = document.getElementById('root');
 if (!container) throw new Error('Failed to find the root element');
@@ -29,6 +30,10 @@ const router = createBrowserRouter([
   {
     path: '/register',
     element: <RegisterPage/>
+  },
+  {
+    path: '/trending',
+    element: <TrendingPage/>
   },
   {
     path: 'profile/:username',
