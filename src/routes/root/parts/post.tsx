@@ -6,7 +6,7 @@ import {
   Divider,
   Flex, HStack,
   SkeletonCircle,
-  SkeletonText, Text,
+  SkeletonText, Stack, Text,
   useColorModeValue, WrapItem
 } from '@chakra-ui/react';
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
@@ -47,7 +47,7 @@ export const Post: React.FC<PostProps> = ({ user, content, created, updated, sco
   }, []);
 
   useEffect(() => {
-    if (showComment) {
+    if (comments.length === 0) {
       getComments().then((res) => {
         setComments(res);
       }).catch((e) => console.error(e));
@@ -184,14 +184,23 @@ export const Post: React.FC<PostProps> = ({ user, content, created, updated, sco
 
 const CommentElement = (props: { comment: PostComment }): ReactElement => {
   return (
-      <HStack m={2} p={2}>
-        <WrapItem mr={3}>
-          <Avatar size={'xs'} name={props.comment.expand.author.name}
-                  src={getUserAvatar(props.comment.expand.author.id, props.comment.expand.author.avatar)} />
-        </WrapItem>
-        <Text fontSize={'md'}>{props.comment.comment}</Text>
-      </HStack>
+      <Stack my={2} p={2}>
+        <HStack>
+          <WrapItem>
+            <Avatar size={'xs'} name={props.comment.expand.author.name}
+                    src={getUserAvatar(props.comment.expand.author.id, props.comment.expand.author.avatar)} />
+          </WrapItem>
+          <Text fontSize={'md'}>{props.comment.expand.author.username}</Text>
+          <Text fontSize={'md'}>{getTime(props.comment.created)}</Text>
+        </HStack>
+        <Text ml={3} fontSize={'md'}>{props.comment.comment}</Text>
+
+      </Stack>
   );
+};
+
+const getTime = (dateStr: string): string => {
+  return new Date(dateStr).toLocaleTimeString();
 };
 
 export const PostSkeleton = (): ReactElement => {

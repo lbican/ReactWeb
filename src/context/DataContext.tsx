@@ -11,6 +11,7 @@ export interface User {
 }
 
 export interface PostComment {
+  created: string,
   expand: { author: User, post: PostProps }
   comment: string
 
