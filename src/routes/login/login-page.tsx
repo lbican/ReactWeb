@@ -15,7 +15,7 @@ import React, { ReactElement, useContext, useState } from 'react';
 import { pb } from '../../utils/database.utils';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { UserContext } from '../../context/UserContext';
+import { DataContext } from '../../context/DataContext';
 
 interface LoginData {
   identifier: string
@@ -30,7 +30,7 @@ const LoginPage = (): ReactElement => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  const user = useContext(UserContext);
+  const user = useContext(DataContext);
 
   const onSubmit = async (data: any): Promise<any> => {
     const formData: LoginData = { ...data };
@@ -38,7 +38,6 @@ const LoginPage = (): ReactElement => {
     setSuccess(false);
     setIsLoading(true);
 
-    console.log(formData);
     return await pb.collection('users').authWithPassword(
       formData.identifier,
       formData.password

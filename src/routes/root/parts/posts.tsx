@@ -1,7 +1,7 @@
 import React, { ReactElement, useEffect, useState } from 'react';
-import { User } from '../../../context/UserContext';
 import { Post, PostProps, PostSkeleton } from './post';
 import { pb } from '../../../utils/database.utils';
+import { User } from '../../../context/DataContext';
 
 interface ResponseObject {
   id: string

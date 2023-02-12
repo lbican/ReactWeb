@@ -1,13 +1,13 @@
 import React, { ReactElement, useContext, useEffect } from 'react';
 import { Box } from '@chakra-ui/react';
 import Sidebar from '../../components/sidebar/sidebar';
-import { User, UserContext } from '../../context/UserContext';
+import { User, DataContext } from '../../context/DataContext';
 import SocialProfile from './parts/social-profile';
 import { useLoaderData, useNavigate } from 'react-router-dom';
 import { isAuthenticated } from '../../utils/database.utils';
 
 export const ProfilePage = (): ReactElement => {
-  const currentUser = useContext(UserContext);
+  const currentUser = useContext(DataContext);
   const data = useLoaderData() as User;
   const navigate = useNavigate();
   console.log(data.id);

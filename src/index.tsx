@@ -8,7 +8,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import ErrorPage from './routes/error/error-page';
 import LoginPage from './routes/login/login-page';
 import RegisterPage from './routes/register/register-page';
-import { UserProvider } from './context/UserContext';
+import { UserProvider } from './context/DataContext';
 import { ProfilePage } from './routes/settings/profile-page';
 import { pb } from './utils/database.utils';
 
@@ -32,6 +32,7 @@ const router = createBrowserRouter([
   },
   {
     path: 'profile/:username',
+    errorElement: <ErrorPage/>,
     element: <ProfilePage/>,
     loader: async ({ params }) => {
       return await pb.collection('users').getFirstListItem(`username="${params.username}"`);

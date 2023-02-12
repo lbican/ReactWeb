@@ -12,11 +12,11 @@ import {
   VStack
 } from '@chakra-ui/react';
 import { FiChevronDown } from 'react-icons/fi';
-import { UserContextType } from '../../../context/UserContext';
+import { DataContextType } from '../../../context/DataContext';
 import { Link } from 'react-router-dom';
-import {getUserAvatar, isAuthenticated} from "../../../utils/database.utils";
+import { getUserAvatar, isAuthenticated } from '../../../utils/database.utils';
 
-const UserMenu = (props: { context: UserContextType }): ReactElement => {
+const UserMenu = (props: { context: DataContextType }): ReactElement => {
   const logout = () => {
     props.context.logout();
     location.reload();
@@ -52,7 +52,7 @@ const UserMenu = (props: { context: UserContextType }): ReactElement => {
   return <AuthButtons/>;
 };
 
-const UserInfo = (props: { context: UserContextType }): ReactElement => {
+const UserInfo = (props: { context: DataContextType }): ReactElement => {
   const user = props.context.user;
 
   return (

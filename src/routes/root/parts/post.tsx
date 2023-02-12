@@ -11,14 +11,15 @@ import {
   WrapItem
 } from '@chakra-ui/react';
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
-import { User, UserContext } from '../../../context/UserContext';
-import { ArrowUpIcon, ChatIcon } from '@chakra-ui/icons';
+import { User, DataContext } from '../../../context/DataContext';
+import { ArrowUpIcon, ChatIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { getUserAvatar, isAuthenticated, pb } from '../../../utils/database.utils';
 import { Link } from 'react-router-dom';
+import { PostEditor } from './post-editor';
 
 export interface PostProps {
   id: string
-  user: User | undefined
+  user?: User
   content: string
   score: number
   created: Date
@@ -26,43 +27,39 @@ export interface PostProps {
 }
 
 export const Post: React.FC<PostProps> = ({ user, content, created, updated, score, id }) => {
-  const currentUser = useContext(UserContext);
-  let likeId = '';
+  const currentUser = useContext(DataContext);
   const [upvoted, setUpvoted] = useState(false);
   const [disabled, setDisabled] = useState(false);
   const [getScore, setScore] = useState(score);
+  const [edit, setEdit] = useState(false);
 
   useEffect(() => {
-    void isUpvoted().then(() => {
-      setUpvoted(true);
+    isUpvoted().then(() => {
       if (!isAuthenticated()) {
         setDisabled(true);
-        setUpvoted(false);
+        return Promise.resolve(true);
       }
+      setUpvoted(true);
     }
-    );
+    ).catch((e) => {});
   }, []);
 
   const upvotePost = async (): Promise<void> => {
     await pb.collection('likes').create({
       user: currentUser.user?.id,
       post: id
-    }).then(async (res) => {
-      likeId = res.id;
-      console.log(likeId);
-      setScore(getScore + 1);
+    }).then(() => {
       setUpvoted(true);
     });
 
     await pb.collection('posts').update(id, {
       score: getScore + 1
-    }).then((res) => console.log(res));
+    }).then((res) => setScore(res.score));
   };
 
   const removeUpvote = async (): Promise<void> => {
     await isUpvoted().then(async (res) => {
-      await pb.collection('likes').delete(res.id).then(async (res) => {
-        likeId = '';
+      await pb.collection('likes').delete(res.id).then(() => {
         setScore(getScore - 1);
         setUpvoted(false);
       });
@@ -72,11 +69,33 @@ export const Post: React.FC<PostProps> = ({ user, content, created, updated, sco
     });
   };
 
+  const onDelete = (id: string): void => {
+    deletePost(id).then(() => {
+      location.reload();
+    });
+  };
+
+  const deletePost = async (id: string): Promise<void> => {
+    await pb.collection('posts').delete(id).then(() => {
+      setScore(getScore - 1);
+      setUpvoted(false);
+    });
+  };
+
+  const isVisible = (): boolean => {
+    if (!currentUser.user) return false;
+    return currentUser.user.admin || currentUser.user.id === user?.id;
+  };
+
   const isUpvoted = async (): Promise<any> => {
     if (currentUser.user) {
       return await pb.collection('likes').getFirstListItem(`user="${currentUser.user?.id}" && post="${id}"`);
     }
   };
+
+  if (edit) {
+    return <PostEditor onCancel={() => setEdit(false)} post={{ user, id, score, content, created, updated }}/>;
+  }
 
   return (
         <Box shadow={'lg'} bg={useColorModeValue('white', 'gray.800')} p={5} my={2} borderRadius={'8px'}>
@@ -106,6 +125,13 @@ export const Post: React.FC<PostProps> = ({ user, content, created, updated, sco
                       bgColor={upvoted ? 'teal.500' : 'white'}
                       disabled={disabled}>Upvote</Button>
               <Button leftIcon={<ChatIcon />}>Comment</Button>
+              {
+                isVisible() &&
+                  <React.Fragment>
+                    <Button leftIcon={<EditIcon />} colorScheme={'yellow'} onClick={() => { setEdit(!edit); }}>Edit</Button>
+                    <Button leftIcon={<DeleteIcon />} colorScheme={'red'} onClick={() => { onDelete(id); }}>Delete</Button>
+                  </React.Fragment>
+              }
 
             </ButtonGroup>
           </Flex>

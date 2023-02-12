@@ -11,13 +11,16 @@ export const getUserAvatar = (id: string | undefined, avatar: string | undefined
 };
 
 export interface UserDatabase {
-  username: string
   email: string
-  emailVisibility: boolean
-  password: string
-  passwordConfirm: string
   name: string
   avatar?: string
+}
+
+export interface RegisterUserDatabase extends UserDatabase{
+  password: string
+  username: string
+  emailVisibility: boolean
+  passwordConfirm: string
 }
 
 export const isAuthenticated = (): boolean => {

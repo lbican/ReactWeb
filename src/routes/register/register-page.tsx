@@ -19,7 +19,7 @@ import {
 import RegisterImage from '../../assets/account.svg';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import { useForm } from 'react-hook-form';
-import { pb, UserDatabase } from '../../utils/database.utils';
+import { pb, RegisterUserDatabase } from '../../utils/database.utils';
 import SuccessAlert from './parts/success-alert';
 import { getErrorReport, ResponseError } from './error-builder';
 
@@ -38,7 +38,7 @@ const RegisterPage = (): ReactElement => {
       password: formData.password,
       passwordConfirm: formData.confirmPassword,
       name: formData.firstName.concat(' ').concat(formData.lastName)
-    } satisfies UserDatabase;
+    } satisfies RegisterUserDatabase;
     console.log(data);
 
     return await pb.collection('users').create(data).then(() => {

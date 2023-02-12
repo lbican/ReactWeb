@@ -10,13 +10,13 @@ import React, { ReactElement, useContext } from 'react';
 import { FiMenu } from 'react-icons/fi';
 import UserMenu from './user-menu';
 import { ColorModeSwitcher } from '../../colors/color-mode-switcher';
-import { UserContext } from '../../../context/UserContext';
+import { DataContext } from '../../../context/DataContext';
 
 interface MobileProps extends FlexProps {
   onOpen: () => void
 }
 const Navigation = ({ onOpen, ...rest }: MobileProps): ReactElement => {
-  const userContext = useContext(UserContext);
+  const userContext = useContext(DataContext);
 
   return (
         <Flex

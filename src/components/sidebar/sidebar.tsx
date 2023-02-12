@@ -21,7 +21,7 @@ import {
 import { IconType } from 'react-icons';
 import Navigation from './parts/navigation';
 import { Link as RouterLink } from 'react-router-dom';
-import { UserContext } from '../../context/UserContext';
+import { DataContext } from '../../context/DataContext';
 
 interface LinkItemProps {
   name: string
@@ -70,7 +70,7 @@ interface SidebarProps extends BoxProps {
 }
 
 const SidebarContent = ({ onClose, ...rest }: SidebarProps): ReactElement => {
-  const user = useContext(UserContext);
+  const user = useContext(DataContext);
   return (
         <Box
             transition="3s ease"
