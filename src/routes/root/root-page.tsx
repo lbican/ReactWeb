@@ -1,76 +1,33 @@
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
-import { Box } from '@chakra-ui/react';
+import React, { ReactElement, useState } from 'react';
+import { Box, Button, useColorModeValue } from '@chakra-ui/react';
 import Sidebar from '../../components/sidebar/sidebar';
-import { Post, PostProps, PostSkeleton } from './post';
-import { User, UserContext } from '../../context/UserContext';
-import { pb } from '../../utils/database.utils';
-
-interface ResponseObject {
-  author: string
-  content: string
-  created: string
-  updated: string
-  expand: { author: User }
-  score: number
-}
+import { Posts } from './parts/posts';
+import { PlusSquareIcon } from '@chakra-ui/icons';
+import { Editor } from '@tinymce/tinymce-react';
 
 export const RootPage = (): ReactElement => {
-  const user = useContext(UserContext);
-  const [loading, setLoading] = useState(false);
-  const [posts, setPosts] = useState<PostProps[]>([]);
-
-  useEffect(() => {
-    setLoading(true);
-    getPosts().then((res) => {
-      res = res.items;
-      return res;
-    }).then((items) => {
-      const posts: PostProps[] = [];
-      items.forEach((post: ResponseObject) => {
-        posts.push({
-          score: post.score,
-          content: post.content,
-          created: new Date(post.created),
-          updated: new Date(post.updated),
-          user: post.expand.author
-        });
-      });
-
-      setPosts(posts);
-
-      setLoading(false);
-    }).catch((e) => {
-      console.error(e);
-    }).finally(() => { setLoading(false); });
-  }, []);
+  const [adding, setAdding] = useState(false);
+  const toggleEditor = (): void => {
+    setAdding(!adding);
+  };
 
   return (
     <Box textAlign="center" fontSize="xl">
       <Sidebar>
-        {
-          loading
-            ? <PostSkeleton/>
-            : (
-                posts.map((post, index) => {
-                  return <Post key={index}
-                               user={post.user}
-                               content={post.content}
-                               score={post.score}
-                               created={post.created}
-                               updated={post.updated}/>;
-                })
-              )
+          <Box p={5} textAlign={'left'}>
+            <Button leftIcon={<PlusSquareIcon/>} colorScheme='teal' size="lg" onClick={toggleEditor}>
+                Add new post
+            </Button>
+              {adding &&
+                  <Box p={5} bg={useColorModeValue('white', 'gray.900')}>
 
-        }
+                      <Editor apiKey={'s05xhkq89e6tcrqb4g43tqkzyvry3ar78uq3ct4q36e7o9c5'} />
+
+                  </Box>
+              }
+            <Posts/>
+          </Box>
       </Sidebar>
     </Box>
   );
-};
-
-const getPosts = async (): Promise<any> => {
-  const records = await pb.collection('posts').getList(1, 50 /* batch size */, {
-    sort: '-created',
-    expand: 'author'
-  });
-  return records;
 };

@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import {
   Avatar,
   Box, Button,
@@ -14,8 +14,14 @@ import {
 import { FiChevronDown } from 'react-icons/fi';
 import { UserContextType } from '../../../context/UserContext';
 import { Link } from 'react-router-dom';
+import {getUserAvatar, isAuthenticated} from "../../../utils/database.utils";
 
 const UserMenu = (props: { context: UserContextType }): ReactElement => {
+  const logout = () => {
+    props.context.logout();
+    location.reload();
+  };
+
   if (isAuthenticated()) {
     return (
           <Menu>
@@ -37,7 +43,7 @@ const UserMenu = (props: { context: UserContextType }): ReactElement => {
                       </Link>
                   </MenuItem>
                   <MenuDivider />
-                  <MenuItem onClick={props.context.logout}>Sign out</MenuItem>
+                  <MenuItem onClick={logout}>Sign out</MenuItem>
               </MenuList>
           </Menu>
     );
@@ -54,7 +60,7 @@ const UserInfo = (props: { context: UserContextType }): ReactElement => {
             <Avatar
                 name={user?.name}
                 size={'sm'}
-                src={user?.avatar}
+                src={getUserAvatar(user?.id, user?.avatar)}
             />
             <VStack
                 display={{ base: 'none', md: 'flex' }}
@@ -99,10 +105,6 @@ const AuthButtons = (): ReactElement => {
             </Button>
         </HStack>
   );
-};
-
-const isAuthenticated = (): boolean => {
-  return !!localStorage.getItem('user') || !!sessionStorage.getItem('user');
 };
 
 export default UserMenu;

@@ -9,7 +9,8 @@ import ErrorPage from './routes/error/error-page';
 import LoginPage from './routes/login/login-page';
 import RegisterPage from './routes/register/register-page';
 import { UserProvider } from './context/UserContext';
-import { SettingsPage } from './routes/settings/settings-page';
+import { ProfilePage } from './routes/settings/profile-page';
+import { pb } from './utils/database.utils';
 
 const container = document.getElementById('root');
 if (!container) throw new Error('Failed to find the root element');
@@ -30,8 +31,11 @@ const router = createBrowserRouter([
     element: <RegisterPage/>
   },
   {
-    path: '/settings',
-    element: <SettingsPage/>
+    path: 'profile/:username',
+    element: <ProfilePage/>,
+    loader: async ({ params }) => {
+      return await pb.collection('users').getFirstListItem(`username="${params.username}"`);
+    }
   }
 ]);
 

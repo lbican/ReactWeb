@@ -33,7 +33,6 @@ export const UserProvider = (props: { children?: ReactElement }): ReactElement =
   const prevUser = getUser();
   const [user, setUser] = useState<User | undefined>(prevUser);
 
-  console.log(user);
   const { children } = props;
 
   const login = (authorizedUser: any, rememberUser: boolean): void => {
