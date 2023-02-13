@@ -1,4 +1,4 @@
-import React, {ReactElement, useEffect, useRef, useState} from 'react';
+import React, { ReactElement, useState } from 'react';
 import {
   Heading,
   Avatar,
@@ -57,13 +57,13 @@ export default (props: { currentUser: DataContextType, user: User }): ReactEleme
 
                         <Stack direction={'row'} justify={'center'} spacing={6}>
                             <Stack spacing={0} align={'center'}>
-                                <Text fontWeight={600}>23k</Text>
+                                <Text fontWeight={600}>5</Text>
                                 <Text fontSize={'sm'} color={'gray.500'}>
                                     Followers
                                 </Text>
                             </Stack>
                             <Stack spacing={0} align={'center'}>
-                                <Text fontWeight={600}>23k</Text>
+                                <Text fontWeight={600}>6</Text>
                                 <Text fontSize={'sm'} color={'gray.500'}>
                                     Followers
                                 </Text>
