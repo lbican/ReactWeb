@@ -4,17 +4,18 @@ import {
   Button,
   ButtonGroup,
   Divider,
-  Flex, HStack,
+  Flex, HStack, IconButton, Input,
   SkeletonCircle,
   SkeletonText, Stack, Text,
   useColorModeValue, WrapItem
 } from '@chakra-ui/react';
-import React, { ReactElement, useContext, useEffect, useState } from 'react';
+import React, { ReactElement, useContext, useEffect, useRef, useState } from 'react';
 import { User, DataContext, PostComment } from '../../../context/DataContext';
 import { ArrowUpIcon, ChatIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { getUserAvatar, isAuthenticated, pb } from '../../../utils/database.utils';
 import { Link } from 'react-router-dom';
 import { PostEditor } from './post-editor';
+import {on} from "cluster";
 
 export interface PostProps {
   refresh: () => void
@@ -89,12 +90,11 @@ export const Post: React.FC<PostProps> = ({ user, content, created, updated, sco
   const onDelete = (id: string): void => {
     deletePost(id).then(() => {
       refresh();
-    });
+    }).catch((e) => { console.log(e); });
   };
 
   const deletePost = async (id: string): Promise<void> => {
     await pb.collection('posts').delete(id).then(() => {
-      setScore(getScore - 1);
       setUpvoted(false);
     });
   };
@@ -159,48 +159,107 @@ export const Post: React.FC<PostProps> = ({ user, content, created, updated, sco
             </ButtonGroup>
 
           </Flex>
-          {showComment && (
-            comments.length === 0
-              ? (
-                    <React.Fragment>
-                      <Divider my={2}/>
-                      <Text>Comments</Text>
-                      <Text fontSize={'md'}>No comments to display</Text>
-                    </React.Fragment>
-                )
-              : (
-                  <React.Fragment>
-                    <Divider my={2}/>
-                    <Text>Comments</Text>
-                    {comments.map((comment, index) => {
-                      return <CommentElement key={index} comment={comment}/>;
-                    })}
-                  </React.Fragment>
-                )
-          )}
+          {showComment && <PostComments comments={comments} postId={id} refresh={refresh} />
+          }
         </Box>
-  );
-};
-
-const CommentElement = (props: { comment: PostComment }): ReactElement => {
-  return (
-      <Stack my={2} p={2}>
-        <HStack>
-          <WrapItem>
-            <Avatar size={'xs'} name={props.comment.expand.author.name}
-                    src={getUserAvatar(props.comment.expand.author.id, props.comment.expand.author.avatar)} />
-          </WrapItem>
-          <Text fontSize={'md'}>{props.comment.expand.author.username}</Text>
-          <Text fontSize={'md'}>{getTime(props.comment.created)}</Text>
-        </HStack>
-        <Text ml={3} fontSize={'md'}>{props.comment.comment}</Text>
-
-      </Stack>
   );
 };
 
 const getTime = (dateStr: string): string => {
   return new Date(dateStr).toLocaleTimeString();
+};
+
+interface CommentProps {
+  refresh: () => void
+  comments: PostComment[]
+  postId: string
+}
+
+const PostComments = ({ comments, postId, refresh }: CommentProps): ReactElement => {
+  const context = useContext(DataContext);
+  const ref = useRef<HTMLInputElement>(null);
+  const [comment, setComment] = useState<string>('');
+
+  const onDelete = (id: string): void => {
+    deleteComment(id).then(() => {
+      refresh();
+    }).catch((e) => { console.log(e); });
+  };
+
+  const deleteComment = async (id: string): Promise<void> => {
+    await pb.collection('comments').delete(id);
+  };
+
+  const addComment = (): void => {
+    createComment().then(() => {
+      refresh();
+    }).catch((e) => console.log(e));
+  };
+
+  const createComment = async (): Promise<PostComment> => {
+    const data = {
+      comment,
+      author: context.user?.id,
+      post: postId
+    };
+
+    return await pb.collection('comments').create(data);
+  };
+
+  return (
+      <React.Fragment>
+        <Divider my={2}/>
+        <Box maxH={'20rem'} overflow={'auto'} position={'relative'}>
+          <Text>Comments</Text>
+          { comments.length > 0
+            ? comments.map((comment, index) => {
+              return (
+                  <Stack key={index} my={2} p={2}>
+                    <HStack>
+                      <WrapItem>
+                        <Avatar size={'xs'} name={comment.expand.author.name}
+                                src={getUserAvatar(comment.expand.author.id, comment.expand.author.avatar)} />
+                      </WrapItem>
+                      <Text fontSize={'md'}>{comment.expand.author.username}</Text>
+                      <Text fontSize={'md'}>{getTime(comment.created)}</Text>
+                      {
+                        (context.user?.id === comment.expand.author.id || context.user?.admin) && (
+                              <IconButton
+                                  size={'sm'}
+                                  onClick={() => onDelete(comment.id)}
+                                  colorScheme='red'
+                                  aria-label='Delete comment'
+                                  icon={<DeleteIcon />}
+                              />
+                        )
+                      }
+                    </HStack>
+                    <Text ml={3} fontSize={'md'}>{comment.comment}</Text>
+
+                  </Stack>
+              );
+            })
+            : (
+                  <Text fontSize={'md'}>No comments to display</Text>
+              )}
+
+          {
+              context.user && (
+                  <HStack w={'md'} mx={2} position={'sticky'} bottom={'0px'} bg={useColorModeValue('white', 'gray.800')}>
+                    <WrapItem>
+                      <Avatar size={'xs'} name={context.user.name}
+                              src={getUserAvatar(context.user.id, context.user.avatar)} />
+                    </WrapItem>
+                    <Input ref={ref} variant='flushed' onChange={() => setComment(ref.current?.value ?? '')} placeholder='Your comment...' />
+                    <Button colorScheme='teal' size='md' disabled={comment.length === 0} onClick={addComment}>
+                      Post
+                    </Button>
+                  </HStack>
+              )
+          }
+        </Box>
+      </React.Fragment>
+  );
 };
 
 export const PostSkeleton = (): ReactElement => {

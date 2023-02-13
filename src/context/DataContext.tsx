@@ -1,5 +1,5 @@
 import React, { createContext, ReactElement, useState } from 'react';
-import {PostProps} from "../routes/root/parts/post";
+import { PostProps } from '../routes/root/parts/post';
 
 export interface User {
   id: string
@@ -10,8 +10,15 @@ export interface User {
   avatar: string
 }
 
+export interface Follower {
+  user: User
+  follows: User
+}
+
 export interface PostComment {
-  created: string,
+  id: string
+  refresh?: () => void
+  created: string
   expand: { author: User, post: PostProps }
   comment: string
 

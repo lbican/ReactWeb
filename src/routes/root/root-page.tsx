@@ -20,7 +20,7 @@ export const RootPage = (): ReactElement => {
               </Button>}
               {adding && <React.Fragment>
                   <PostEditor onCancel={() => { setAdding(false); }}/>
-                  <Posts/>
+                  <Posts />
               </React.Fragment>}
 
               {!adding && <Posts/>}
